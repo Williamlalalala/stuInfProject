@@ -1,0 +1,900 @@
+<html>
+
+<head>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+  <!-- 引入样式 -->
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+  <!-- 引入组件库 -->
+  <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+  <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+  <!--使用阿里巴巴矢量图标-->
+  <link rel="stylesheet" href="https://at.alicdn.com/t/font_778010_4kqp5c4hl7.css">
+  <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+  <!-- 引入axios -->
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <title>困难学生管理系统</title>
+</head>
+
+<body>
+  <div id="main">
+    <div>
+      <!--学生块-->
+      <el-container style="height: 100%; border: 1px solid #eee">
+        <el-aside width="200px" style="background-color: rgb(238, 241, 246)">
+          <!--侧边栏-->
+          <el-menu :default-openeds="['1', '3']">
+            <el-submenu index="1">
+              <template slot="title">
+                <i class="el-icon-menu"></i>困难学生管理系统</template>
+              <el-menu-item-group>
+                <template slot="title">已完成</template>
+                <el-menu-item index="1-1" v-on:click="signOne()">已建档</el-menu-item>
+              </el-menu-item-group>
+              <el-menu-item-group>
+                <template slot="title">新增</template>
+                <el-menu-item index="2-1" v-on:click="signTwo()">新增记录</el-menu-item>
+              </el-menu-item-group>
+              <el-menu-item-group>
+                <template slot="title">历史</template>
+                <el-menu-item index="2-2" v-on:click="signThree()">建档记录</el-menu-item>
+                <el-menu-item index="2-3" v-on:click="signFour()">帮扶类型</el-menu-item>
+              </el-menu-item-group>
+            </el-submenu>
+            <el-submenu index="2">
+                <template slot="title">
+                    <i class="iconfont icon-student"></i>学生基本信息库</template>
+                <el-menu-item-group>
+                  <el-menu-item index="3-1" v-on:click="signFive()">学生信息</el-menu-item>
+                </el-menu-item-group>
+              </el-submenu>
+            <!--<el-submenu index="2">
+                                          <template slot="title"><i class="el-icon-menu"></i>导航二</template>
+                                          <el-menu-item-group>
+                                            <template slot="title">分组一</template>
+                                            <el-menu-item index="2-1">选项1</el-menu-item>
+                                            <el-menu-item index="2-2">选项2</el-menu-item>
+                                          </el-menu-item-group>
+                                          <el-menu-item-group title="分组2">
+                                            <el-menu-item index="2-3">选项3</el-menu-item>
+                                          </el-menu-item-group>
+                                          <el-submenu index="2-4">
+                                            <template slot="title">选项4</template>
+                                            <el-menu-item index="2-4-1">选项4-1</el-menu-item>
+                                          </el-submenu>
+                                        </el-submenu>
+                                        <el-submenu index="3">
+                                          <template slot="title"><i class="el-icon-setting"></i>导航三</template>
+                                          <el-menu-item-group>
+                                            <template slot="title">分组一</template>
+                                            <el-menu-item index="3-1">选项1</el-menu-item>
+                                            <el-menu-item index="3-2">选项2</el-menu-item>
+                                          </el-menu-item-group>
+                                          <el-menu-item-group title="分组2">
+                                            <el-menu-item index="3-3">选项3</el-menu-item>
+                                          </el-menu-item-group>
+                                          <el-submenu index="3-4">
+                                            <template slot="title">选项4</template>
+                                            <el-menu-item index="3-4-1">选项4-1</el-menu-item>
+                                          </el-submenu>
+                                        </el-submenu>-->
+          </el-menu>
+          <el-dropdown>
+            <i class="el-icon-setting" style="margin-right: 0px"></i>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item>查看</el-dropdown-item>
+              <el-dropdown-item>注销</el-dropdown-item>
+              <el-dropdown-item>退出</el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+          <span>chen</span>
+        </el-aside>
+
+        <el-container>
+          <!--主体部分-->
+          <el-header style="text-align: right; font-size: 20px;height:80px;">
+              <el-col :span="24" class="topbar-wrap" id="nav">
+                  <div class="topbar-logo topbar-btn">
+                    <a href="/"><img src="./images/ourlogo2.png" alt="ourlogo2" style="padding-left: 8px;"></a>
+                  </div>
+                  <div class="topbar-title">
+                    <span style="font-size: 18px;color: #fff;">困难学生管理系统</span>
+                  </div>
+                  <div class="topbar-account topbar-btn">
+                    <el-dropdown trigger="click">
+                      <span class="el-dropdown-link userinfo-inner"><i class="iconfont icon-user"></i>{{nickname}}
+                      <i class="iconfont icon-down"></i></span>
+                      <el-dropdown-menu slot="dropdown">
+                        <el-dropdown-item>
+                          <div><span style="color:#555;font-size: 14px;">修改密码</span></div>
+                        </el-dropdown-item>
+                        <el-dropdown-item @click.native="logout" style="color: #555;font-size: 14px;">退出登录</el-dropdown-item>
+                      </el-dropdown-menu>
+                    </el-dropdown>
+                  </div>
+                </el-col>
+          </el-header>
+
+          <el-main>
+            <!--建档历史-->
+            <div v-if="sign===1">
+              <!--查询块-->
+              <el-popover placement="bottom" style="position:relative" width="auto" trigger="click">
+                <div class="search-group">
+                  <el-form :inline="true" :model="formInline" class="demo-form-inline">
+                    <el-form-item label="学院">
+                      <el-select v-model="formInline.college">
+                        <el-option label="信息与软件工程学院" value="信息与软件工程学院"></el-option>
+                      </el-select>
+                    </el-form-item>
+                    <el-form-item label="年级">
+                      <el-select v-model="formInline.grade">
+                        <el-option label="2018" value="2018"></el-option>
+                        <el-option label="2017" value="2017"></el-option>
+                        <el-option label="2016" value="2016"></el-option>
+                        <el-option label="2015" value="2015"></el-option>
+                      </el-select>
+                    </el-form-item>
+                    <el-form-item label="班级">
+                      <el-input v-model="formInline.class" placeholder="如:20162203"></el-input>
+                    </el-form-item>
+                    <el-form-item label="专业">
+                      <el-select v-model="formInline.major">
+                        <el-option v-for="major in allMajor" :label='major' :value="major"></el-option>
+                      </el-select>
+                    </el-form-item>
+                    <el-form-item label="面貌">
+                      <el-select v-model="formInline.identity">
+                        <el-option v-for="identity in allIdentities" :label='identity' :value="identity"></el-option>
+                      </el-select>
+                    </el-form-item>
+                    <el-form-item label="姓名">
+                      <el-input v-model="formInline.name" placeholder="姓名"></el-input>
+                    </el-form-item>
+                    <el-form-item label="学号">
+                      <el-input v-model="formInline.studenID" placeholder="如:2016220301001"></el-input>
+                    </el-form-item>
+                    <el-form-item label="籍贯">
+                      <el-select v-model="formInline.province">
+                        <el-option v-for="province in allProvinces" :label='province' :value="province"></el-option>
+                      </el-select>
+                    </el-form-item>
+                    <el-form-item label="民族">
+                      <el-select v-model="formInline.nation">
+                        <el-option v-for="nation in allNations" :label='nation' :value="nation"></el-option>
+                      </el-select>
+                    </el-form-item>
+                    <el-form-item label="性别">
+                      <el-select v-model="formInline.sex">
+                        <el-option label="男" value="男"></el-option>
+                        <el-option label="女" value="女"></el-option>
+                      </el-select>
+                    </el-form-item>
+                    <el-form-item>
+                      <el-button type="primary" item-width="100%" @click="findHistoryTable()">查询</el-button>
+                    </el-form-item>
+                  </el-form>
+                </div>
+
+                <div slot="reference" class="search-btn" type="primary">查询</div>
+              </el-popover>
+              <!--查看总体的记录-->
+              <el-table :data="beforStuInfTable">
+                <el-table-column v-for="data in straitened_stu_table" :prop="data.prop" :label="data.label">
+                </el-table-column>
+                <el-table-column fixed="right" label="操作" width="100">
+                  <div slot-scope="scope">
+                    <el-button @click="lookClick(scope.row)" type="text" size="small">查看</el-button>
+                    <el-button @click="disClick(scope.row)" type="text" size="small">讨论</el-button>
+                  </div>
+                </el-table-column>
+              </el-table>
+            </div>
+
+            <div v-else-if="sign===2" class="signTwo">
+              <!--新建建档-->
+              <el-button style="float:right;margin:20px;" type="text" @click="createTableVisible = true">导入</el-button>
+              <div class="newType">
+
+              
+              <el-row class="demo-autocomplete">
+                <el-input class="inline-input" placeholder="姓名" v-model="input10" clearable>
+                </el-input>
+              </el-row>
+              <el-row class="demo-autocomplete">
+                <el-input class="inline-input" placeholder="学号" v-model="input9" clearable>
+                </el-input>
+              </el-row>
+              <el-row class="demo-autocomplete">
+                <el-input class="inline-input" placeholder="记录时间" v-model="input8" clearable>
+                </el-input>
+              </el-row>
+              <el-row class="demo-autocomplete">
+                <el-input class="inline-input" placeholder="地点" v-model="input7" clearable>
+                </el-input>
+              </el-row>
+              
+              <el-row class="demo-autocomplete">
+                <el-input class="inline-input" placeholder="记录者" clearable>
+                </el-input>
+              </el-row>
+              <el-row class="demo-autocomplete">
+                <el-input class="inline-input" placeholder="记录者" clearable>
+                </el-input>
+              </el-row>
+              
+                <el-input class="inline-textarea" type="textarea" :rows="3" placeholder="请输入">
+                </el-input>
+              
+              
+              
+                <el-input class="inline-textarea" type="textarea" :rows="3" placeholder="请输入">
+                </el-input>
+            </div>
+            </div>
+
+            <div v-else-if="sign===3">
+              <!--建档历史列表-->
+              <el-table :data="record_table">
+                <el-table-column v-for="record in record_table_attitude" :prop="record.prop" :label="record.label">
+                </el-table-column>
+                <el-table-column fixed="right" label="操作" width="190">
+                  <div slot-scope="scope">
+                    <el-tooltip class="item" effect="dark" content="更改记录人" placement="top-end">
+                      <el-button @click="change_recorder(scope.row)" size="small" icon="el-icon-document
+                    "></el-button>
+                    </el-tooltip>
+
+                    <el-tooltip class="item" effect="dark" content="修改记录" placement="top-start">
+                      <el-button @click="change_record_inf(scope.row)" icon="el-icon-edit
+                    " size="small"></el-button>
+                    </el-tooltip>
+
+                    <el-tooltip class="item" effect="dark" content="删除" placement="top-start">
+                      <el-button @click="delRecordDialog = true " icon="el-icon-delete
+                    " size="small"></el-button>
+                    </el-tooltip>
+                  </div>
+                </el-table-column>
+              </el-table>
+            </div>
+            <div v-else-if="sign===4">
+              <div style="background-color:#fff">
+                <!--帮扶和关注类型的增减-->
+                帮扶类型
+                <el-tag :key="tag.name" v-for="tag in dynamicHelpTags" closable :disable-transitions="false" @close="handleCloseHelp(tag)">
+                  {{tag}}
+                </el-tag>
+                <el-input class="input-new-tag" v-if="inputVisibleOne" v-model="inputValueOne" ref="saveTagInput" size="small" @keyup.enter.native="handleInputConfirmOne"
+                  @blur="handleInputConfirmOne">
+                </el-input>
+                <el-button v-else class="button-new-tag" size="small" @click="showInputOne">+ 新帮扶类型</el-button>
+              </div>
+
+              <!--里面包含了修改信息的关注类型-->
+              <div style="background-color:#fff" style="margin:auto">
+                关注类型
+                <div style="display:inline-block;margin-left:20px;" v-for="tag in dynamicAttentionTags" v-on:dblclick="showInputMod(tag)">
+                  <el-tag closable class="input-new-tag" v-if="tag.visible" :disable-transitions="false" @close="handleCloseAttention(tag)">
+                    {{tag.name}}
+                  </el-tag>
+                  <el-input class="input-new-tag" v-if="!tag.visible" v-model="inputValueMod" ref="saveTagInput" size="small" @keyup.enter.native="handleInputConfirmTwo"
+                    @blur="handleInputConfirmMod(tag)">
+                  </el-input>
+                </div>
+
+                <el-input class="input-new-tag" v-if="inputVisibleTwo" v-model="inputValueTwo" ref="saveTagInput" size="small" @keyup.enter.native="handleInputConfirmTwo"
+                  @blur="handleInputConfirmTwo(tag)">
+                </el-input>
+                <el-button v-else class="button-new-tag" size="small" @click="showInputTwo">+ 新关注类型</el-button>
+              </div>
+            </div>
+            <div v-else-if="sign===5">
+                <div class="defaultInfoTable">
+                    <div class="top-btn">
+                        <el-row>
+                            <el-button plain @click="downloadTemplate()">模板下载</el-button>
+                            <el-button plain @click="uploadExcel()">导入信息</el-button>
+                            <el-button plain>导出选中信息</el-button>
+                            <!-- <el-button type="primary" @click="showSettings">设置</el-button> -->
+                            <el-popover placement="bottom" width="1100px" v-model="visible">
+                                <div class="search-group">
+                                    <el-form :inline="true" :model="formInline" class="demo-form-inline">
+                                        <el-form-item label="学院">
+                                            <el-select v-model="formInline.college">
+                                              <el-option label="信息与软件工程学院" value="信息与软件工程学院"></el-option>
+                                            </el-select>
+                                          </el-form-item>
+                                            <el-form-item label="年级">
+                                              <el-select v-model="formInline.grade">
+                                                <el-option label="2018" value="2018"></el-option>
+                                                <el-option label="2017" value="2017"></el-option>
+                                                <el-option label="2016" value="2016"></el-option>
+                                                <el-option label="2015" value="2015"></el-option>
+                                              </el-select>
+                                            </el-form-item>
+                                        <el-form-item label="班级">
+                                          <el-input v-model="formInline.class" placeholder="如:20162203"></el-input>
+                                        </el-form-item>
+                                        <el-form-item label="专业">
+                                          <el-select v-model="formInline.major">
+                                            <el-option v-for="major in allMajor" :label='major' :value="major"></el-option>
+                                          </el-select>
+                                        </el-form-item>
+                                        <el-form-item label="面貌">
+                                          <el-select v-model="formInline.identity">
+                                            <el-option v-for="identity in allIdentities" :label='identity' :value="identity"></el-option>
+                                          </el-select>
+                                        </el-form-item>
+                                        <el-form-item label="姓名">
+                                            <el-input v-model="formInline.name" placeholder="姓名"></el-input>
+                                          </el-form-item>
+                                          <el-form-item label="学号">
+                                            <el-input v-model="formInline.studenID" placeholder="如:2016220301001"></el-input>
+                                          </el-form-item>
+                                          <el-form-item label="籍贯">
+                                            <el-select v-model="formInline.province">
+                                              <el-option v-for="province in allProvinces" :label='province' :value="province"></el-option>
+                                            </el-select>
+                                          </el-form-item>
+                                          <el-form-item label="民族">
+                                            <el-select v-model="formInline.nation">
+                                              <el-option v-for="nation in allNations" :label='nation' :value="nation"></el-option>
+                                            </el-select>
+                                          </el-form-item>
+                                          <el-form-item label="性别">
+                                            <el-select v-model="formInline.sex">
+                                              <el-option label="男" value="男"></el-option>
+                                              <el-option label="女" value="女"></el-option>
+                                            </el-select>
+                                          </el-form-item>
+                                        <el-form-item>
+                                          <el-button type="primary" @click="onSubmit">查询</el-button>
+                                        </el-form-item>
+                                      </el-form>
+                                </div>
+                                <el-button slot="reference" class="search-btn1" type="primary">查询</el-button>
+                              </el-popover>
+                          </el-row>
+                          <input  type ="file" id="fileExcel" @change="uploadInfo" style="opacity:1;display:none;float:right;font-size:12px;margin-top:8px" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"/>
+                          <form class="" action="http://180.76.249.233:8080/newhelp/api/download/baseStudentTemplate" method="get" style="display:none">
+                            <input type="submit" id="downloadFile"/>
+                          </form>
+                    </div>
+                    <el-dialog title="请输入密码" :visible.sync="pwdDialogVisible">
+                      <el-input v-model="password" type="password" auto-complete="off"></el-input>
+                      <div slot="footer" class="dialog-footer">
+                        <el-button @click="pwdDialogVisible = false">取 消</el-button>
+                        <el-button type="primary" @click="pwdDialogVisible = false">确 定</el-button>
+                      </div>
+                    </el-dialog>
+                    <div class="info-table">
+                        <el-table :data="testData.slice((currentPage-1)*pageSize,currentPage*pageSize)" @selection-change="handleSelectionChange">
+                            <el-table-column type="expand">
+                                <template slot-scope="props">
+                                  <el-form label-position="left" inline class="demo-table-expand">
+                                    <el-form-item v-for="data in straitened_stu_table" :label="data.label">
+                                      <span>{{ props.row[data.prop] }}</span>
+                                    </el-form-item>
+                                  </el-form>
+                                </template>
+                              </el-table-column>
+                            <el-table-column prop="studentId" label="学号"></el-table-column>
+                            <el-table-column prop="Name" label="姓名"></el-table-column>
+                            <el-table-column prop="grade" label="年级"></el-table-column>
+                            <el-table-column fixed="right" label="操作" width="100">
+                              <div slot-scope="scope">
+                                <el-button @click="lookClick(scope.row)" type="text" size="small">查看</el-button>
+                              </div>
+                            </el-table-column>
+                            <el-table-column type="selection" width="55"></el-table-column>
+                          </el-table>
+                    </div>
+                    <!-- 导出选中数据时需要用到的表单 -->
+                    <form action="" method="post" target="nm_iframe" style="display:none" id="formRecord">
+                      <!-- <input type="text" id="form_settings" name="settings"/> -->
+                      <input type="text" id="form_Id" name="json" />
+                      <input type="text" id="weektoken" name="token">
+                      <input type="submit" id="form_submit" name="nm_submit" value="提交" />
+                  </form>
+                    <div class="pagination">
+                      <el-pagination
+                      @size-change="handleSizeChange"
+                      @current-change="handleCurrentChange"
+                      :current-page="currentPage"
+                      :page-sizes="[10, 20, 30, 40]"
+                      :page-size="pageSize"
+                      layout="total, sizes, prev, pager, next, jumper"
+                      :total="testData.length">
+                    </el-pagination>
+                  </div>
+                  </div>
+                  <!-- 查看详细信息 -->
+                  <div class="detailedInfo">
+                      <el-breadcrumb separator="/" style="margin-bottom: 20px">
+                        <el-breadcrumb-item ><a @click="backToTable">学生信息</a></el-breadcrumb-item>
+                        <el-breadcrumb-item>苏菲</el-breadcrumb-item>
+                      </el-breadcrumb>
+                      <el-tabs v-model="activeInfoName" type="border-card">
+                        <el-tab-pane label="所有信息" name="allInfo">
+                          <el-row :gutter="20">
+                            <el-col :span="19">
+                                <el-card class="box-card">
+                                    <div class="info">
+                                      <label style="font-size: 12px;float: left;margin: 15px;">
+                                        <b>学院：</b><span style="width:126px;height:20px" >信息与软件工程学院</span>
+                                      </label>
+                                      <label v-for="infoProperty in allInfoProperties" style="font-size: 12px;float: left;margin:15px;">
+                                        <b>{{infoProperty.label}}：</b><span style="width:126px;height:20px" :id="infoProperty.code">{{allInfoSet[infoProperty.code]}}</span>
+                                      </label>
+                                     </div>
+                                </el-card>
+                            </el-col>
+                            <el-col :span="5" style="text-align:center">
+                              <img class="studentPhoto" :src="allInfoSet.photoUrl" alt="照片">
+                              <input type="file" accept="image/jpeg,image/png,image/jpg" id="uploadPhoto" @change='changePhoto' style="display: none">
+                              <el-button style="margin-top: 20px;" @click="uploadPhoto" type="primary" size="mini" plain>上传照片</el-button>
+                              <el-row style="margin-top: 20px;">
+                                <el-button type="primary" size="mini" plain>编辑</el-button>
+                                <el-button type="danger" size="mini" plain>退学</el-button>
+                              </el-row>
+                            </el-col>
+                          </el-row>
+                        </el-tab-pane>
+                        <el-tab-pane label="个人信息" name="personalInfo">
+                          <el-row :gutter="20">
+                            <el-col :span="19">
+                                <el-card class="box-card">
+                                    <div class="info">
+                                      <label style="font-size: 12px;float: left;margin: 15px;">
+                                        <b>学院：</b><span style="width:126px;height:20px" >信息与软件工程学院</span>
+                                      </label>
+                                      <label v-for="infoProperty in personalInfoProperties" style="font-size: 12px;float: left;margin:15px;">
+                                        <b>{{infoProperty.label}}：</b><span style="width:126px;height:20px" :id="infoProperty.code">{{allInfoSet[infoProperty.code]}}</span>
+                                      </label>
+                                    </div>
+                                </el-card>
+                            </el-col>
+                            <el-col :span="5" style="text-align:center">
+                              <img class="studentPhoto" :src="allInfoSet.photoUrl" alt="照片">
+                              <el-button style="margin-top: 20px;" @click="uploadPhoto" type="primary" size="mini" plain>上传照片</el-button>
+                            </el-col>
+                          </el-row>
+                        </el-tab-pane>
+                        <el-tab-pane label="家庭信息" name="familyInfo">
+                          <el-row :gutter="20">
+                            <el-col :span="19">
+                                <el-card class="box-card">
+                                    <div class="info">
+                                        <label style="font-size: 12px;float: left;margin: 15px;">
+                                            <b>学院：</b><span style="width:126px;height:20px" >信息与软件工程学院</span>
+                                          </label>
+                                          <label v-for="infoProperty in familyInfoProperties" style="font-size: 12px;float: left;margin:15px;">
+                                            <b>{{infoProperty.label}}：</b><span style="width:126px;height:20px" :id="infoProperty.code">{{allInfoSet[infoProperty.code]}}</span>
+                                          </label>
+                                    </div>
+                                </el-card>
+                            </el-col>
+                            <el-col :span="5" style="text-align:center">
+                              <img class="studentPhoto" :src="allInfoSet.photoUrl" alt="照片">
+                              <el-button style="margin-top: 20px;" @click="uploadPhoto" type="primary" size="mini" plain>上传照片</el-button>
+                            </el-col>
+                          </el-row>
+                        </el-tab-pane>
+                      </el-tabs>
+                  </div>
+            </div>
+          </el-main>
+        </el-container>
+        <!--提示删除-->
+        <el-dialog title="提示" :visible.sync="delRecordDialog" width="30%" :before-close="handleClose">
+          <span>确定删除吗</span>
+          <span slot="footer" class="dialog-footer">
+            <el-button @click="delRecordDialog = false">取 消</el-button>
+            <el-button type="primary" @click="delRecordDialog = false">确 定</el-button>
+          </span>
+        </el-dialog>
+        <!--修改记录-->
+        <el-dialog title="修改记录" :visible.sync="changeRecordDialog">
+          <el-form :model="recordInfForm">
+            <el-form-item label="更新记录ID" :label-width="formLabelWidth">
+              <el-input v-model="recordInfForm.recordId" :placeholder="tempRecordInf.recordName" auto-complete="off"></el-input>
+            </el-form-item>
+            <el-form-item label="更新时间" :label-width="formLabelWidth">
+              <el-input v-model="recordInfForm.recordTime" :placeholder="tempRecordInf.recordTime" auto-complete="off"></el-input>
+            </el-form-item>
+            <el-form-item label="更新地点" :label-width="formLabelWidth">
+              <el-input v-model="recordInfForm.location" :placeholder="tempRecordInf.recordName" auto-complete="off"></el-input>
+            </el-form-item>
+            <el-form-item label="目击人" :label-width="formLabelWidth">
+              <el-input v-model="recordInfForm.witness" :placeholder="tempRecordInf.recordName" auto-complete="off"></el-input>
+            </el-form-item>
+            <el-form-item label="记录人" :label-width="formLabelWidth">
+              <el-input v-model="recordInfForm.recorder" :placeholder="tempRecordInf.recordName" auto-complete="off"></el-input>
+            </el-form-item>
+            <el-form-item label="参与者" :label-width="formLabelWidth">
+              <el-input v-model="recordInfForm.participant" :placeholder="tempRecordInf.recordName" auto-complete="off"></el-input>
+            </el-form-item>
+            <el-form-item label="方式" :label-width="formLabelWidth">
+              <el-input v-model="recordInfForm.way" :placeholder="tempRecordInf.recordName" auto-complete="off"></el-input>
+            </el-form-item>
+            <el-form-item label="内容" :label-width="formLabelWidth">
+              <el-input type="textarea" :rows="2" placeholder="请输入内容" v-model="recordInfForm.content">
+              </el-input>
+            </el-form-item>
+            <el-form-item label="评论" :label-width="formLabelWidth">
+              <el-input type="textarea" :rows="2" placeholder="请输入内容" v-model="recordInfForm.comment">
+              </el-input>
+            </el-form-item>
+          </el-form>
+          <div slot="footer" class="dialog-footer">
+            <el-button @click="changeRecordDialog = false">取 消</el-button>
+            <el-button type="primary" @click="changeRecordDialog = false">确 定</el-button>
+          </div>
+        </el-dialog>
+        <!--修改记录人-->
+        <el-dialog title="更改记录人" :visible.sync="changeRecorderDialog">
+          <el-form :model="recordForm">
+            <el-form-item label="更新后的学号" :label-width="formLabelWidth">
+              <el-input v-model="recordForm.name" :placeholder="tempRecordInf.recordName" auto-complete="off"></el-input>
+            </el-form-item>
+            <el-form-item label="更新时间" :label-width="formLabelWidth">
+              <div class="block">
+                <el-date-picker v-model="recordForm.changeTime" type="datetime" placeholder="选择日期" align="right" :picker-options="pickerOptions1">
+                </el-date-picker>
+              </div>
+            </el-form-item>
+            <el-form-item label="更新后记录人" :label-width="formLabelWidth">
+              <el-input v-model="recordForm.recorderNow" :placeholder="tempRecordInf.recordName" auto-complete="off"></el-input>
+            </el-form-item>
+            <el-form-item label="更新原因" :label-width="formLabelWidth">
+              <el-input type="textarea" :rows="2" placeholder="请输入内容" v-model="recordForm.changeReason">
+              </el-input>
+            </el-form-item>
+          </el-form>
+          <div slot="footer" class="dialog-footer">
+            <el-button @click="changeRecorderDialog = false">取 消</el-button>
+            <el-button type="primary" @click="changeRecorderDialog = false">确 定</el-button>
+          </div>
+        </el-dialog>
+        <!--新增部分的导入框-->
+        <el-dialog title="导入" :visible.sync="createTableVisible">
+          <div label="学号" :label-width="formLabelWidth">学号:
+            <el-autocomplete class="inline-input" v-model="guideStudent" :fetch-suggestions="querySearch" placeholder="请输入学号" @select="handleSelect"></el-autocomplete>
+          </div>
+        </el-dialog>
+      </el-container>
+    </div>
+  </div>
+
+  <style>
+    .el-header,
+    .el-footer {
+      background-color: #B3C0D1;
+      color: #333;
+      text-align: center;
+      line-height: 60px;
+    }
+
+    .el-aside {
+      background-color: #D3DCE6;
+      color: #333;
+      text-align: center;
+      line-height: 200px;
+      height: 100%;
+    }
+
+    .el-main {
+      background-color: #E9EEF3;
+      color: #333;
+      text-align: center;
+      line-height: 160px;
+    }
+
+    .el-main .el-form-item {
+      width: 50%;
+      position: relative;
+      left: 25%;
+    }
+
+    body>.el-container {
+      margin-bottom: 40px;
+    }
+
+    .el-container:nth-child(5) .el-aside,
+    .el-container:nth-child(6) .el-aside {
+      line-height: 260px;
+    }
+
+    .el-container:nth-child(7) .el-aside {
+      line-height: 320px;
+    }
+
+    .el-form-item {
+      display: flex;
+      justify-content: flex-start;
+    }
+
+    .chooseTap {
+      width: 50%;
+      position: relative;
+      /*border: black solid 1px;*/
+      left: 25%;
+      flex-direction: column;
+    }
+
+    .discuss {
+      width: 80%;
+      position: relative;
+      margin: 3%;
+      /*border: black solid 1px;*/
+      background: #D3DCE6;
+    }
+
+    .discuss .dialogue {
+      height: 500px;
+      width: 94%;
+      background: #fff;
+      float: left;
+    }
+
+    .search-btn {
+      background-color: white;
+      font-size: 20px;
+      width: 100%;
+      height: 50px;
+      line-height: 50px;
+      margin-bottom: 10px;
+    }
+
+    .el-tag+.el-tag {
+      margin-left: 10px;
+    }
+
+    .button-new-tag {
+      margin-left: 10px;
+      height: 32px;
+      line-height: 30px;
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+
+    .input-new-tag {
+      width: 90px;
+      margin-left: 10px;
+      vertical-align: middle;
+    }
+
+    .demo-autocomplete {
+      display: inline-block;
+    }
+
+    .inline-input {
+      width: 80%;
+      padding: 20px;
+    }
+    .inline-textarea {
+      width: 40%;
+      padding: 20px;
+    }
+    .signTwo {
+      background-color: #fff;
+    }
+
+    .my-autocomplete {
+      line-height: normal;
+      padding: 7px;
+
+
+    }
+
+    .my-autocomplete .name {
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    .my-autocomplete .addr {
+      font-size: 12px;
+      color: #b4b4b4;
+    }
+
+    .my-autocomplete .highlighted .addr {
+      color: #ddd;
+    }
+    .el-row{/*
+      height: 100px;
+      /*border: solid 1px black;*/
+      /*margin-bottom: 10px;*/
+    }
+    .newType{
+      height: 500px;
+      /*border: solid 1px black;*/
+    }
+    /*span{
+      font-size: 30px;
+      width:50%;
+      display:flex;margin-top:10px;left:20%;position:relative;
+    }*/
+    /*下面为另一部分*/
+    .info{
+    float: left
+    }
+    .info input{
+    background: transparent;
+    border: solid 0px;
+    padding-left: 5px;
+    }
+    .demo-table-expand {
+    font-size: 0;
+  }
+  .demo-table-expand label {
+    width: 90px;
+    color: #99a9bf;
+  }
+  .demo-table-expand .el-form-item {
+    margin-right: 0;
+    margin-bottom: 0;
+    width: 50%;
+  }
+  .el-checkbox.is-bordered+.el-checkbox.is-bordered {
+    margin-bottom: 10px;
+  }
+    .cell{
+      font-size: 12px;
+    }
+    .pagination{
+      margin-top: 20px;
+    }
+    .info-table{
+      margin-top: 20px;
+    }
+    #cover {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    /*background: rgba(	169,169,169,0.6);*/
+    display: none;
+    z-index: 1000;
+    }
+#place {
+    width: 560px;
+    height: 630px;
+    background: white;
+    border-top: 70px solid #00c1de;
+    -webkit-box-shadow: 0 0 10px rgba(0, 204, 204, .5);
+    -moz-box-shadow: 0 0 10px rgba(0, 204, 204, .5);
+    box-shadow: 0 0 10px rgba(255,250,205,.9);
+    margin: auto;
+    margin-top: 80px;
+    border-radius: 10px;
+    }
+    #place div img {
+    width: 40px;
+    height: 40px;
+    float: right;
+    margin-top: -80px;
+    margin-right: -8px;
+}
+#place p {
+    margin-top: -50px;
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
+    margin-left: 10px;
+}
+#place h3 {
+    font-size: 20px;
+    /*font-weight: bold;*/
+    /*color: black;*/
+    margin-left: 40px;
+    margin-top: 50px;
+}
+.chooseStu {
+    height: 400px;
+    overflow-y: scroll;
+}
+.chooseStuInfo {
+    list-style-type: none;
+    font-size: 15px;
+}
+#place input[type="checkbox"] {
+    zoom: 140%;
+}
+.chooseStuToImExport {
+    height: 400px;
+    overflow-y: scroll;
+}
+.chooseStuInfoToImExport {
+    list-style-type: none;
+    font-size: 15px;
+}
+#confirm {
+    float: right;
+    margin-right: 70px;
+    font-size: 15px;
+}
+#confirmImExport {
+    float: right;
+    margin-right: 70px;
+    font-size: 15px;
+    display: none;
+}
+    .search-btn1{
+      float:right;
+    }
+    .el-menu{
+      border-right: 0px;
+    }
+    
+    .el-menu-item.is-active{
+      background-color: #00c1de;
+      color: #fff;
+    }
+    .el-menu-item:hover{
+        background-color: #7ed2df;
+      }
+    .topbar-wrap{
+      height: 50px;
+      line-height: 50px;
+      padding: 0px;
+    }
+    .topbar-btn{
+      color: #fff;
+    }
+    .topbar-logo{
+      float: left;
+      width: 59px;
+      line-height: 26px;
+    }
+    .topbar-logo img{
+      height: 40px;
+      margin-top: 5px;
+      margin-left: 2px;
+    }
+    .topbar-title{
+      float: left;
+      text-align: left;
+      width: 200px;
+      padding-left: 10px;
+    }
+    .topbar-account{
+      float: right;
+      padding-right: 12px;
+    }
+    .userinfo-inner{
+      cursor: pointer;
+      color: #fff;
+      padding-left: 10px;
+    }
+    .el-header,
+    .el-footer {
+      background-color: #B3C0D1;
+      color: #333;
+      text-align: center;
+      line-height: 60px;
+    }
+
+    .el-aside {
+      background-color: #D3DCE6;
+      color: #333;
+      text-align: center;
+      line-height: 200px;
+      height: 100%;
+    }
+    .el-main {
+      background-color: #E9EEF3;
+      color: #333;
+    }
+    .studentPhoto{
+      width: 150px;
+      height: 200px;
+    }
+  </style>
+
+
+  <script src="./index.js"></script>
+</body>
+
+</html>
